@@ -1,1 +1,147 @@
-<!DOCTYPE html><html lang='ru'><head><meta charset='utf-8'><title>Survey</title></head><body><h1>Eco Survey работает!</h1></body></html>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SEFICO PACKING — Коммерческий опрос</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Arial, sans-serif; background:#f6f7fb; margin:0; padding:0; color:#222; }
+    .wrap { max-width:860px; margin:40px auto; padding:0 16px; }
+    .card { background:#fff; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.08); padding:24px; }
+    h1 { font-size:22px; margin:0 0 10px; }
+    .sub { color:#555; margin:0 0 20px; }
+    .q-title { font-size:18px; margin:0 0 8px; }
+    .opt { display:flex; align-items:flex-start; gap:8px; padding:8px 10px; border:1px solid #ddd; border-radius:8px; margin-bottom:8px; cursor:pointer; }
+    .opt:hover { background:#f0f4ff; }
+    .opt input { margin-top:4px; }
+    textarea, input[type="text"], input[type="email"], input[type="tel"] {
+      width:100%; padding:10px; border-radius:8px; border:1px solid #ccc; margin-bottom:10px;
+    }
+    .nav { display:flex; justify-content:space-between; margin-top:16px; }
+    button { border:0; padding:10px 16px; border-radius:8px; cursor:pointer; font-weight:600; }
+    .btn { background:#1a73e8; color:#fff; }
+    .btn-sec { background:#eee; }
+    .summary { margin-top:20px; }
+    .kv { border:1px solid #eee; background:#fafafa; padding:10px; border-radius:8px; margin:8px 0; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>Коммерческий опрос — SEFICO PACKING</h1>
+    <p class="sub">Ответы помогут подготовить индивидуальное предложение. Результаты можно скачать или отправить на <b>contact@craft.immo</b>.</p>
+
+    <div id="question"></div>
+
+    <div class="nav">
+      <button class="btn-sec" id="prevBtn">← Назад</button>
+      <button class="btn" id="nextBtn">Далее →</button>
+      <button class="btn" id="submitBtn" style="display:none">Завершить ✅</button>
+    </div>
+  </div>
+
+  <div id="result" class="card" style="display:none"></div>
+</div>
+
+<script>
+const SURVEY = [
+  {id:"company", type:"text", title:"Компания / организация"},
+  {id:"contact", type:"text", title:"Контактное лицо"},
+  {id:"email", type:"text", title:"Email"},
+  {id:"phone", type:"text", title:"Телефон (необязательно)"},
+
+  {id:"thickness", type:"radio", title:"Какой тип продукции (толщина) вы используете?",
+    options:[{k:"A",t:"45 µm"},{k:"B",t:"60 µm"},{k:"C",t:"70 µm"},{k:"D",t:"90 µm"}]},
+
+  {id:"suppliers", type:"radio", title:"С какими компаниями и на каких условиях вы работаете сегодня?",
+    options:[{k:"A",t:"Краткосрочные, разовые контракты"},
+             {k:"B",t:"Длительные контракты (без раскрытия компаний)"},
+             {k:"C",t:"Открыты для предложений от новых партнёров"}]},
+
+  {id:"volume", type:"text", title:"Какой объём вас интересует (мес/квартал/год)?"},
+
+  {id:"payment", type:"radio", title:"Какие условия оплаты вас могут заинтересовать?",
+    options:[{k:"A",t:"Минимальная предоплата при заказе и 100% при получении"},
+             {k:"B",t:"100% предоплата до получения товара"},
+             {k:"C",t:"Другая форма оплаты"}]},
+
+  {id:"sefico_known", type:"radio", title:"Знакомы ли вы с компанией SEFICO PACKING?",
+    options:[{k:"A",t:"Да, знаем/работали"},{k:"B",t:"Слышали, но не работали"},{k:"C",t:"Нет"}]},
+
+  {id:"sefico_interest", type:"radio", title:"Интересует ли вас продукция SEFICO PACKING?",
+    options:[{k:"A",t:"Да, хочу получить образцы"},{k:"B",t:"Нет, уже есть поставщик"}]},
+
+  {id:"priority", type:"radio", title:"При выборе поставщика что важнее всего?",
+    options:[{k:"A",t:"Качество продукции"},{k:"B",t:"Срок исполнения заказа"},{k:"C",t:"Гибкость в оплате"},{k:"D",t:"Стоимость"}]},
+
+  {id:"market_quality", type:"radio", title:"Как вы оцениваете качество пакетов на рынке?",
+    options:[{k:"A",t:"Низкое"},{k:"B",t:"Среднее"},{k:"C",t:"Высокое"}]},
+
+  {id:"market_availability", type:"radio", title:"Достаточно ли предложений на рынке?",
+    options:[{k:"A",t:"Мало"},{k:"B",t:"Достаточно"}]},
+
+  {id:"market_price", type:"radio", title:"Как вы оцениваете стоимость таких пакетов?",
+    options:[{k:"A",t:"Доступная"},{k:"B",t:"Средняя"},{k:"C",t:"Высокая"}]},
+
+  {id:"comments", type:"text", title:"Комментарий (необязательно)"}
+];
+
+let step = 0;
+const answers = {};
+const qBox = document.getElementById("question");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const submitBtn = document.getElementById("submitBtn");
+const result = document.getElementById("result");
+
+function render() {
+  const q = SURVEY[step];
+  qBox.innerHTML = "";
+  const h = document.createElement("h2");
+  h.className = "q-title";
+  h.textContent = q.title;
+  qBox.appendChild(h);
+
+  if(q.type==="radio") {
+    q.options.forEach(opt=>{
+      const label=document.createElement("label");
+      label.className="opt";
+      const input=document.createElement("input");
+      input.type="radio"; input.name=q.id; input.value=opt.k;
+      if(answers[q.id]===opt.k) input.checked=true;
+      input.addEventListener("change",()=>answers[q.id]=opt.k);
+      label.appendChild(input);
+      label.appendChild(document.createTextNode(opt.k+". "+opt.t));
+      qBox.appendChild(label);
+    });
+  } else {
+    const input=document.createElement(q.type==="text"?"textarea":"input");
+    input.value=answers[q.id]||"";
+    input.addEventListener("input",()=>answers[q.id]=input.value);
+    qBox.appendChild(input);
+  }
+
+  prevBtn.style.display = step===0?"none":"inline-block";
+  nextBtn.style.display = step<SURVEY.length-1?"inline-block":"none";
+  submitBtn.style.display = step===SURVEY.length-1?"inline-block":"none";
+}
+
+prevBtn.onclick=()=>{ if(step>0) step--; render(); };
+nextBtn.onclick=()=>{ step++; render(); };
+submitBtn.onclick=()=>showResult();
+
+function showResult(){
+  qBox.innerHTML="";
+  result.style.display="block";
+  let html="<div class='summary'><h2>Спасибо! Результаты опроса</h2>";
+  for(const q of SURVEY){
+    html+=`<div class="kv"><b>${q.title}</b><div>${answers[q.id]||"(нет ответа)"}</div></div>`;
+  }
+  html+="</div>";
+  result.innerHTML=html;
+}
+
+render();
+</script>
+</body>
+</html>
