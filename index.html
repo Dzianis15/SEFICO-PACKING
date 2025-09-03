@@ -52,31 +52,31 @@ const SURVEY = [
   {id:"email", type:"text", title:"Email"},
   {id:"phone", type:"text", title:"Телефон (необязательно)"},
 
-  {id:"thickness", type:"radio", title:"Какой тип продукции (толщина) вы используете?",
+  {id:"thickness", type:"checkbox", title:"Какой тип продукции вы используете в своих упаковках?",
     options:[{k:"A",t:"45 µm"},{k:"B",t:"60 µm"},{k:"C",t:"70 µm"},{k:"D",t:"90 µm"}]},
 
-  {id:"suppliers", type:"radio", title:"С какими компаниями и на каких условиях вы работаете сегодня?",
+  {id:"conditions", type:"checkbox", title:"На каких условиях вы работаете сегодня для покупки вашей продукции?",
     options:[{k:"A",t:"Краткосрочные, разовые контракты"},
-             {k:"B",t:"Длительные контракты (без раскрытия компаний)"},
-             {k:"C",t:"Открыты для предложений от новых партнёров"}]},
+             {k:"B",t:"Длительные контракты"},
+             {k:"C",t:"Открыты для разных предложений от новых партнёров"}]},
 
-  {id:"volume", type:"text", title:"Какой объём вас интересует (мес/квартал/год)?"},
+  {id:"volume", type:"radio", title:"Какой объём вас интересует?",
+    options:[{k:"A",t:"от 100 до 1000 м²"},{k:"B",t:"от 1000 до 5000 м²"},{k:"C",t:"5000 и более м²"}]},
 
-  {id:"payment", type:"radio", title:"Какие условия оплаты вас могут заинтересовать?",
-    options:[{k:"A",t:"Минимальная предоплата при заказе и 100% при получении"},
+  {id:"payment", type:"radio", title:"Какие условия в возможной работе вас могут заинтересовать при длительном сотрудничестве?",
+    options:[{k:"A",t:"Предоплата минимальная при заказе и 100% при получении товара"},
              {k:"B",t:"100% предоплата до получения товара"},
-             {k:"C",t:"Другая форма оплаты"}]},
+             {k:"C",t:"Ваш вариант"}]},
 
-  {id:"sefico_known", type:"radio", title:"Знакомы ли вы с компанией SEFICO PACKING?",
-    options:[{k:"A",t:"Да, знаем/работали"},{k:"B",t:"Слышали, но не работали"},{k:"C",t:"Нет"}]},
+  {id:"sefico_interest", type:"radio", title:"Может ли вас заинтересовать продукция компании SEFICO PACKING?",
+    options:[{k:"A",t:"Да, и я хотел бы получить образцы"},
+             {k:"B",t:"Нет, у нас уже есть поставщик и мы не заинтересованы"}]},
 
-  {id:"sefico_interest", type:"radio", title:"Интересует ли вас продукция SEFICO PACKING?",
-    options:[{k:"A",t:"Да, хочу получить образцы"},{k:"B",t:"Нет, уже есть поставщик"}]},
+  {id:"priority", type:"checkbox", title:"При выборе поставщика и партнёра, что вас больше интересует?",
+    options:[{k:"A",t:"Качество продукции"},{k:"B",t:"Срок исполнения заказа"},
+             {k:"C",t:"Гибкость в оплате"},{k:"D",t:"Стоимость"}]},
 
-  {id:"priority", type:"radio", title:"При выборе поставщика что важнее всего?",
-    options:[{k:"A",t:"Качество продукции"},{k:"B",t:"Срок исполнения заказа"},{k:"C",t:"Гибкость в оплате"},{k:"D",t:"Стоимость"}]},
-
-  {id:"market_quality", type:"radio", title:"Как вы оцениваете качество пакетов на рынке?",
+  {id:"market_quality", type:"checkbox", title:"Как вы оцениваете качество доступных на рынке вакуумных пакетов?",
     options:[{k:"A",t:"Низкое"},{k:"B",t:"Среднее"},{k:"C",t:"Высокое"}]},
 
   {id:"market_availability", type:"radio", title:"Достаточно ли предложений на рынке?",
@@ -85,7 +85,9 @@ const SURVEY = [
   {id:"market_price", type:"radio", title:"Как вы оцениваете стоимость таких пакетов?",
     options:[{k:"A",t:"Доступная"},{k:"B",t:"Средняя"},{k:"C",t:"Высокая"}]},
 
-  {id:"comments", type:"text", title:"Комментарий (необязательно)"}
+  {id:"comments", type:"text", title:"Комментарий (необязательно)"},
+  {id:"needs", type:"text", title:"Ваши нужды плёнки в месяц (свободное поле)"},
+  {id:"materials", type:"text", title:"Материалы (PE / PA-PE / PP / компостируемые / бумага+плёнка / другое)"}
 ];
 
 let step = 0;
@@ -104,20 +106,28 @@ function render() {
   h.textContent = q.title;
   qBox.appendChild(h);
 
-  if(q.type==="radio") {
+  if(q.type==="radio" || q.type==="checkbox") {
     q.options.forEach(opt=>{
       const label=document.createElement("label");
       label.className="opt";
       const input=document.createElement("input");
-      input.type="radio"; input.name=q.id; input.value=opt.k;
-      if(answers[q.id]===opt.k) input.checked=true;
-      input.addEventListener("change",()=>answers[q.id]=opt.k);
+      input.type=q.type; input.name=q.id+(q.type==="radio"?"":"[]"); input.value=opt.k;
+      if(answers[q.id] && answers[q.id].includes && answers[q.id].includes(opt.k)) input.checked=true;
+      else if(answers[q.id]===opt.k) input.checked=true;
+      input.addEventListener("change",()=>{
+        if(q.type==="radio"){ answers[q.id]=opt.k; }
+        else {
+          if(!answers[q.id]) answers[q.id]=[];
+          if(input.checked) answers[q.id].push(opt.k);
+          else answers[q.id]=answers[q.id].filter(v=>v!==opt.k);
+        }
+      });
       label.appendChild(input);
       label.appendChild(document.createTextNode(opt.k+". "+opt.t));
       qBox.appendChild(label);
     });
   } else {
-    const input=document.createElement(q.type==="text"?"textarea":"input");
+    const input=document.createElement("textarea");
     input.value=answers[q.id]||"";
     input.addEventListener("input",()=>answers[q.id]=input.value);
     qBox.appendChild(input);
@@ -135,53 +145,13 @@ submitBtn.onclick=()=>showResult();
 function showResult(){
   qBox.innerHTML="";
   result.style.display="block";
-
-  // табличка с ответами
   let html="<div class='summary'><h2>Спасибо! Результаты опроса</h2>";
   for(const q of SURVEY){
-    const a = formatAnswer(q, answers[q.id]);
-    html+=`<div class="kv"><b>${escapeHtml(q.title)}</b><div>${escapeHtml(a||"(нет ответа)")}</div></div>`;
+    let a=answers[q.id]||"(нет ответа)";
+    if(Array.isArray(a)) a=a.join(", ");
+    html+=`<div class="kv"><b>${q.title}</b><div>${a}</div></div>`;
   }
-
-  // кнопка отправки на email
   html+=`
     <div class="nav" style="margin-top:12px">
       <button class="btn-sec" id="backBtn">← Изменить ответы</button>
-      <button class="btn" id="sendBtn">Отправить на contact@craft.immo ✉️</button>
-    </div>
-  `;
-  html+="</div>";
-  result.innerHTML=html;
-
-  document.getElementById("backBtn").onclick=()=>{ result.style.display="none"; render(); };
-  document.getElementById("sendBtn").onclick=sendByEmail;
-}
-
-function formatAnswer(q, val){
-  if(!val) return "";
-  if(q.type==="radio"){
-    const opt = (q.options||[]).find(o=>o.k===val);
-    return opt ? `${val}. ${opt.t}` : val;
-  }
-  return val;
-}
-
-function sendByEmail(){
-  // соберем текст письма в виде простого списка "Вопрос: ответ"
-  const lines=[];
-  for(const q of SURVEY){
-    const a = formatAnswer(q, answers[q.id]) || "";
-    lines.push(`${q.title}: ${a}`);
-  }
-  const subject = encodeURIComponent("Результаты коммерческого опроса (SEFICO PACKING)");
-  const body = encodeURIComponent(lines.join("\n"));
-  const url = `mailto:${encodeURIComponent(RECIPIENT)}?subject=${subject}&body=${body}`;
-  window.location.href = url;
-}
-
-function escapeHtml(s){ return String(s).replace(/[&<>\"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
-
-render();
-</script>
-</body>
-</html>
+      <button class="btn" id="sendBtn">Отправить на contact@
