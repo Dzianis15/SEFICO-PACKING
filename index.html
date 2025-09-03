@@ -1,184 +1,58 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SEFICO PACKING — Questionnaire commercial</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SEFICO PACKING — Questionnaire</title>
   <style>
-    body { font-family: system-ui, -apple-system, Arial, sans-serif; background:#f6f7fb; margin:0; padding:0; color:#222; }
-    .wrap { max-width:860px; margin:40px auto; padding:0 16px; }
-    .card { background:#fff; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.08); padding:24px; }
-    h1 { font-size:22px; margin:0 0 10px; }
-    .sub { color:#555; margin:0 0 20px; }
-    .q-title { font-size:18px; margin:0 0 8px; }
-    .opt { display:flex; align-items:flex-start; gap:8px; padding:8px 10px; border:1px solid #ddd; border-radius:8px; margin-bottom:8px; cursor:pointer; }
-    .opt:hover { background:#f0f4ff; }
-    .opt input { margin-top:4px; }
-    textarea, input[type="text"], input[type="email"], input[type="tel"] {
-      width:100%; padding:10px; border-radius:8px; border:1px solid #ccc; margin-bottom:10px;
+    body {
+      font-family: system-ui, Arial, sans-serif;
+      background: #f6f7fb;
+      margin: 0;
+      padding: 0;
+      color: #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
     }
-    .nav { display:flex; justify-content:space-between; margin-top:16px; flex-wrap:wrap; gap:8px; }
-    button { border:0; padding:10px 16px; border-radius:8px; cursor:pointer; font-weight:600; }
-    .btn { background:#1a73e8; color:#fff; }
-    .btn-sec { background:#eee; }
-    .summary { margin-top:20px; }
-    .kv { border:1px solid #eee; background:#fafafa; padding:10px; border-radius:8px; margin:8px 0; }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      text-align: center;
+      max-width: 500px;
+    }
+    h1 {
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+    p {
+      margin-bottom: 30px;
+      color: #555;
+    }
+    a {
+      display: block;
+      margin: 10px 0;
+      padding: 14px 20px;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+      color: #fff;
+    }
+    .btn-ru { background: #1a73e8; }
+    .btn-fr { background: #34a853; }
+    .btn-ru:hover { background: #155fc0; }
+    .btn-fr:hover { background: #2b8643; }
   </style>
 </head>
 <body>
-<div class="wrap">
   <div class="card">
-    <h1>Questionnaire commercial — SEFICO PACKING</h1>
-    <p class="sub">Vos réponses nous aideront à préparer une offre personnalisée.  
-    Vous pouvez envoyer les résultats à <b>contact@craft.immo</b>.</p>
-
-    <div id="question"></div>
-
-    <div class="nav">
-      <button class="btn-sec" id="prevBtn">← Précédent</button>
-      <button class="btn" id="nextBtn">Suivant →</button>
-      <button class="btn" id="submitBtn" style="display:none">Terminer ✅</button>
-    </div>
+    <h1>SEFICO PACKING</h1>
+    <p>Veuillez choisir la langue / Пожалуйста, выберите язык</p>
+    <a href="anketa.html" class="btn-ru">🇷🇺 Анкета на русском</a>
+    <a href="survey.html" class="btn-fr">🇫🇷 Questionnaire en français</a>
   </div>
-
-  <div id="result" class="card" style="display:none"></div>
-</div>
-
-<script>
-const RECIPIENT = "contact@craft.immo";
-
-const SURVEY = [
-  {id:"company", type:"text", title:"Société / organisation"},
-  {id:"contact", type:"text", title:"Personne de contact"},
-  {id:"email", type:"text", title:"Email"},
-  {id:"phone", type:"text", title:"Téléphone (optionnel)"},
-
-  {id:"thickness", type:"checkbox", title:"Quel type de produit utilisez-vous dans vos emballages ?",
-    options:[{k:"A",t:"45 µm"},{k:"B",t:"60 µm"},{k:"C",t:"70 µm"},{k:"D",t:"90 µm"}]},
-
-  {id:"conditions", type:"checkbox", title:"Dans quelles conditions travaillez-vous aujourd’hui pour vos achats d’emballages ?",
-    options:[{k:"A",t:"Contrats ponctuels, de courte durée"},
-             {k:"B",t:"Contrats de longue durée"},
-             {k:"C",t:"Ouverts à de nouvelles propositions de partenaires"}]},
-
-  {id:"volume", type:"radio", title:"Quel volume vous intéresse ?",
-    options:[{k:"A",t:"de 100 à 1000 m²"},{k:"B",t:"de 1000 à 5000 m²"},{k:"C",t:"5000 m² et plus"}]},
-
-  {id:"payment", type:"radio", title:"Quelles conditions de paiement vous conviendraient dans une coopération à long terme ?",
-    options:[{k:"A",t:"Acompte minimal à la commande et 100% à la réception"},
-             {k:"B",t:"100% d’avance avant livraison"},
-             {k:"C",t:"Autre modalité"}]},
-
-  {id:"sefico_interest", type:"radio", title:"La production de SEFICO PACKING pourrait-elle vous intéresser ?",
-    options:[{k:"A",t:"Oui, je souhaiterais recevoir des échantillons"},
-             {k:"B",t:"Non, nous avons déjà un fournisseur"}]},
-
-  {id:"priority", type:"checkbox", title:"Dans le choix d’un fournisseur/partenaire, qu’est-ce qui compte le plus pour vous ?",
-    options:[{k:"A",t:"Qualité du produit"},{k:"B",t:"Délais d’exécution"},
-             {k:"C",t:"Flexibilité de paiement"},{k:"D",t:"Prix"}]},
-
-  {id:"market_quality", type:"checkbox", title:"Comment évaluez-vous la qualité des sachets sous vide disponibles sur le marché ?",
-    options:[{k:"A",t:"Faible"},{k:"B",t:"Moyenne"},{k:"C",t:"Élevée"}]},
-
-  {id:"market_availability", type:"radio", title:"L’offre sur le marché est-elle suffisante ?",
-    options:[{k:"A",t:"Peu"},{k:"B",t:"Suffisante"}]},
-
-  {id:"market_price", type:"radio", title:"Comment évaluez-vous le prix de ces emballages ?",
-    options:[{k:"A",t:"Abordable"},{k:"B",t:"Moyen"},{k:"C",t:"Élevé"}]},
-
-  {id:"comments", type:"text", title:"Commentaires (optionnel) — précisions sur la qualité, les marques, la logistique, etc."},
-  {id:"needs", type:"text", title:"Vos besoins en film par mois (champ libre)"},
-  {id:"materials", type:"text", title:"Matériaux (PE / PA-PE / PP / compostables / papier+film / autre)"}
-];
-
-let step = 0;
-const answers = {};
-const qBox = document.getElementById("question");
-const prevBtn = document.getElementById("prevBtn");
-const nextBtn = document.getElementById("nextBtn");
-const submitBtn = document.getElementById("submitBtn");
-const result = document.getElementById("result");
-
-function render() {
-  const q = SURVEY[step];
-  qBox.innerHTML = "";
-  const h = document.createElement("h2");
-  h.className = "q-title";
-  h.textContent = q.title;
-  qBox.appendChild(h);
-
-  if(q.type==="radio" || q.type==="checkbox") {
-    q.options.forEach(opt=>{
-      const label=document.createElement("label");
-      label.className="opt";
-      const input=document.createElement("input");
-      input.type=q.type; input.name=q.id+(q.type==="radio"?"":"[]"); input.value=opt.k;
-      if(answers[q.id] && answers[q.id].includes && answers[q.id].includes(opt.k)) input.checked=true;
-      else if(answers[q.id]===opt.k) input.checked=true;
-      input.addEventListener("change",()=>{
-        if(q.type==="radio"){ answers[q.id]=opt.k; }
-        else {
-          if(!answers[q.id]) answers[q.id]=[];
-          if(input.checked) answers[q.id].push(opt.k);
-          else answers[q.id]=answers[q.id].filter(v=>v!==opt.k);
-        }
-      });
-      label.appendChild(input);
-      label.appendChild(document.createTextNode(opt.k+". "+opt.t));
-      qBox.appendChild(label);
-    });
-  } else {
-    const input=document.createElement("textarea");
-    input.value=answers[q.id]||"";
-    input.addEventListener("input",()=>answers[q.id]=input.value);
-    qBox.appendChild(input);
-  }
-
-  prevBtn.style.display = step===0?"none":"inline-block";
-  nextBtn.style.display = step<SURVEY.length-1?"inline-block":"none";
-  submitBtn.style.display = step===SURVEY.length-1?"inline-block":"none";
-}
-
-prevBtn.onclick=()=>{ if(step>0) step--; render(); };
-nextBtn.onclick=()=>{ step++; render(); };
-submitBtn.onclick=()=>showResult();
-
-function showResult(){
-  qBox.innerHTML="";
-  result.style.display="block";
-  let html="<div class='summary'><h2>Merci ! Résultats du questionnaire</h2>";
-  for(const q of SURVEY){
-    let a=answers[q.id]||"(pas de réponse)";
-    if(Array.isArray(a)) a=a.join(", ");
-    html+=`<div class="kv"><b>${q.title}</b><div>${a}</div></div>`;
-  }
-  html+=`
-    <div class="nav" style="margin-top:12px">
-      <button class="btn-sec" id="backBtn">← Modifier les réponses</button>
-      <button class="btn" id="sendBtn">Envoyer à contact@craft.immo ✉️</button>
-    </div>
-  `;
-  html+="</div>";
-  result.innerHTML=html;
-
-  document.getElementById("backBtn").onclick=()=>{ result.style.display="none"; render(); };
-  document.getElementById("sendBtn").onclick=sendByEmail;
-}
-
-function sendByEmail(){
-  const lines=[];
-  for(const q of SURVEY){
-    let a=answers[q.id]||"";
-    if(Array.isArray(a)) a=a.join(", ");
-    lines.push(`${q.title}: ${a}`);
-  }
-  const subject = encodeURIComponent("Résultats du questionnaire (SEFICO PACKING)");
-  const body = encodeURIComponent(lines.join("\n"));
-  const url = `mailto:${encodeURIComponent(RECIPIENT)}?subject=${subject}&body=${body}`;
-  window.location.href = url;
-}
-
-render();
-</script>
 </body>
 </html>
