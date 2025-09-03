@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="fr">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SEFICO PACKING — Коммерческий опрос</title>
+  <title>SEFICO PACKING — Questionnaire commercial</title>
   <style>
     body { font-family: system-ui, -apple-system, Arial, sans-serif; background:#f6f7fb; margin:0; padding:0; color:#222; }
     .wrap { max-width:860px; margin:40px auto; padding:0 16px; }
@@ -28,15 +28,16 @@
 <body>
 <div class="wrap">
   <div class="card">
-    <h1>Коммерческий опрос — SEFICO PACKING</h1>
-    <p class="sub">Ответы помогут подготовить индивидуальное предложение. Результаты можно отправить на <b>contact@craft.immo</b>.</p>
+    <h1>Questionnaire commercial — SEFICO PACKING</h1>
+    <p class="sub">Vos réponses nous aideront à préparer une offre personnalisée.  
+    Vous pouvez envoyer les résultats à <b>contact@craft.immo</b>.</p>
 
     <div id="question"></div>
 
     <div class="nav">
-      <button class="btn-sec" id="prevBtn">← Назад</button>
-      <button class="btn" id="nextBtn">Далее →</button>
-      <button class="btn" id="submitBtn" style="display:none">Завершить ✅</button>
+      <button class="btn-sec" id="prevBtn">← Précédent</button>
+      <button class="btn" id="nextBtn">Suivant →</button>
+      <button class="btn" id="submitBtn" style="display:none">Terminer ✅</button>
     </div>
   </div>
 
@@ -47,47 +48,47 @@
 const RECIPIENT = "contact@craft.immo";
 
 const SURVEY = [
-  {id:"company", type:"text", title:"Компания / организация"},
-  {id:"contact", type:"text", title:"Контактное лицо"},
+  {id:"company", type:"text", title:"Société / organisation"},
+  {id:"contact", type:"text", title:"Personne de contact"},
   {id:"email", type:"text", title:"Email"},
-  {id:"phone", type:"text", title:"Телефон (необязательно)"},
+  {id:"phone", type:"text", title:"Téléphone (optionnel)"},
 
-  {id:"thickness", type:"checkbox", title:"Какой тип продукции вы используете в своих упаковках?",
+  {id:"thickness", type:"checkbox", title:"Quel type de produit utilisez-vous dans vos emballages ?",
     options:[{k:"A",t:"45 µm"},{k:"B",t:"60 µm"},{k:"C",t:"70 µm"},{k:"D",t:"90 µm"}]},
 
-  {id:"conditions", type:"checkbox", title:"На каких условиях вы работаете сегодня для покупки вашей продукции?",
-    options:[{k:"A",t:"Краткосрочные, разовые контракты"},
-             {k:"B",t:"Длительные контракты"},
-             {k:"C",t:"Открыты для разных предложений от новых партнёров"}]},
+  {id:"conditions", type:"checkbox", title:"Dans quelles conditions travaillez-vous aujourd’hui pour vos achats d’emballages ?",
+    options:[{k:"A",t:"Contrats ponctuels, de courte durée"},
+             {k:"B",t:"Contrats de longue durée"},
+             {k:"C",t:"Ouverts à de nouvelles propositions de partenaires"}]},
 
-  {id:"volume", type:"radio", title:"Какой объём вас интересует?",
-    options:[{k:"A",t:"от 100 до 1000 м²"},{k:"B",t:"от 1000 до 5000 м²"},{k:"C",t:"5000 и более м²"}]},
+  {id:"volume", type:"radio", title:"Quel volume vous intéresse ?",
+    options:[{k:"A",t:"de 100 à 1000 m²"},{k:"B",t:"de 1000 à 5000 m²"},{k:"C",t:"5000 m² et plus"}]},
 
-  {id:"payment", type:"radio", title:"Какие условия в возможной работе вас могут заинтересовать при длительном сотрудничестве?",
-    options:[{k:"A",t:"Предоплата минимальная при заказе и 100% при получении товара"},
-             {k:"B",t:"100% предоплата до получения товара"},
-             {k:"C",t:"Ваш вариант"}]},
+  {id:"payment", type:"radio", title:"Quelles conditions de paiement vous conviendraient dans une coopération à long terme ?",
+    options:[{k:"A",t:"Acompte minimal à la commande et 100% à la réception"},
+             {k:"B",t:"100% d’avance avant livraison"},
+             {k:"C",t:"Autre modalité"}]},
 
-  {id:"sefico_interest", type:"radio", title:"Может ли вас заинтересовать продукция компании SEFICO PACKING?",
-    options:[{k:"A",t:"Да, и я хотел бы получить образцы"},
-             {k:"B",t:"Нет, у нас уже есть поставщик и мы не заинтересованы"}]},
+  {id:"sefico_interest", type:"radio", title:"La production de SEFICO PACKING pourrait-elle vous intéresser ?",
+    options:[{k:"A",t:"Oui, je souhaiterais recevoir des échantillons"},
+             {k:"B",t:"Non, nous avons déjà un fournisseur"}]},
 
-  {id:"priority", type:"checkbox", title:"При выборе поставщика и партнёра, что вас больше интересует?",
-    options:[{k:"A",t:"Качество продукции"},{k:"B",t:"Срок исполнения заказа"},
-             {k:"C",t:"Гибкость в оплате"},{k:"D",t:"Стоимость"}]},
+  {id:"priority", type:"checkbox", title:"Dans le choix d’un fournisseur/partenaire, qu’est-ce qui compte le plus pour vous ?",
+    options:[{k:"A",t:"Qualité du produit"},{k:"B",t:"Délais d’exécution"},
+             {k:"C",t:"Flexibilité de paiement"},{k:"D",t:"Prix"}]},
 
-  {id:"market_quality", type:"checkbox", title:"Как вы оцениваете качество доступных на рынке вакуумных пакетов?",
-    options:[{k:"A",t:"Низкое"},{k:"B",t:"Среднее"},{k:"C",t:"Высокое"}]},
+  {id:"market_quality", type:"checkbox", title:"Comment évaluez-vous la qualité des sachets sous vide disponibles sur le marché ?",
+    options:[{k:"A",t:"Faible"},{k:"B",t:"Moyenne"},{k:"C",t:"Élevée"}]},
 
-  {id:"market_availability", type:"radio", title:"Достаточно ли предложений на рынке?",
-    options:[{k:"A",t:"Мало"},{k:"B",t:"Достаточно"}]},
+  {id:"market_availability", type:"radio", title:"L’offre sur le marché est-elle suffisante ?",
+    options:[{k:"A",t:"Peu"},{k:"B",t:"Suffisante"}]},
 
-  {id:"market_price", type:"radio", title:"Как вы оцениваете стоимость таких пакетов?",
-    options:[{k:"A",t:"Доступная"},{k:"B",t:"Средняя"},{k:"C",t:"Высокая"}]},
+  {id:"market_price", type:"radio", title:"Comment évaluez-vous le prix de ces emballages ?",
+    options:[{k:"A",t:"Abordable"},{k:"B",t:"Moyen"},{k:"C",t:"Élevé"}]},
 
-  {id:"comments", type:"text", title:"Комментарий (необязательно)"},
-  {id:"needs", type:"text", title:"Ваши нужды плёнки в месяц (свободное поле)"},
-  {id:"materials", type:"text", title:"Материалы (PE / PA-PE / PP / компостируемые / бумага+плёнка / другое)"}
+  {id:"comments", type:"text", title:"Commentaires (optionnel) — précisions sur la qualité, les marques, la logistique, etc."},
+  {id:"needs", type:"text", title:"Vos besoins en film par mois (champ libre)"},
+  {id:"materials", type:"text", title:"Matériaux (PE / PA-PE / PP / compostables / papier+film / autre)"}
 ];
 
 let step = 0;
@@ -145,13 +146,39 @@ submitBtn.onclick=()=>showResult();
 function showResult(){
   qBox.innerHTML="";
   result.style.display="block";
-  let html="<div class='summary'><h2>Спасибо! Результаты опроса</h2>";
+  let html="<div class='summary'><h2>Merci ! Résultats du questionnaire</h2>";
   for(const q of SURVEY){
-    let a=answers[q.id]||"(нет ответа)";
+    let a=answers[q.id]||"(pas de réponse)";
     if(Array.isArray(a)) a=a.join(", ");
     html+=`<div class="kv"><b>${q.title}</b><div>${a}</div></div>`;
   }
   html+=`
     <div class="nav" style="margin-top:12px">
-      <button class="btn-sec" id="backBtn">← Изменить ответы</button>
-      <button class="btn" id="sendBtn">Отправить на contact@
+      <button class="btn-sec" id="backBtn">← Modifier les réponses</button>
+      <button class="btn" id="sendBtn">Envoyer à contact@craft.immo ✉️</button>
+    </div>
+  `;
+  html+="</div>";
+  result.innerHTML=html;
+
+  document.getElementById("backBtn").onclick=()=>{ result.style.display="none"; render(); };
+  document.getElementById("sendBtn").onclick=sendByEmail;
+}
+
+function sendByEmail(){
+  const lines=[];
+  for(const q of SURVEY){
+    let a=answers[q.id]||"";
+    if(Array.isArray(a)) a=a.join(", ");
+    lines.push(`${q.title}: ${a}`);
+  }
+  const subject = encodeURIComponent("Résultats du questionnaire (SEFICO PACKING)");
+  const body = encodeURIComponent(lines.join("\n"));
+  const url = `mailto:${encodeURIComponent(RECIPIENT)}?subject=${subject}&body=${body}`;
+  window.location.href = url;
+}
+
+render();
+</script>
+</body>
+</html>
