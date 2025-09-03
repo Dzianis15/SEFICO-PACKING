@@ -1,33 +1,31 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SEFICO PACKING — Коммерческий опрос</title>
-  <style>
-    body { font-family: system-ui, -apple-system, Arial, sans-serif; background:#f6f7fb; margin:0; padding:0; color:#222; }
-    .wrap { max-width:860px; margin:40px auto; padding:0 16px; }
-    .card { background:#fff; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.08); padding:24px; }
-    h1 { font-size:22px; margin:0 0 10px; }
-    .sub { color:#555; margin:0 0 20px; }
-    .q-title { font-size:18px; margin:0 0 8px; }
-    .opt { display:flex; align-items:flex-start; gap:8px; padding:8px 10px; border:1px solid #ddd; border-radius:8px; margin-bottom:8px; cursor:pointer; }
-    .opt:hover { background:#f0f4ff; }
-    .opt input { margin-top:4px; }
-    textarea, input[type="text"], input[type="email"], input[type="tel"] {
-      width:100%; padding:10px; border-radius:8px; border:1px solid #ccc; margin-bottom:10px;
-    }
-    .nav { display:flex; justify-content:space-between; margin-top:16px; flex-wrap:wrap; gap:8px; }
-    button { border:0; padding:10px 16px; border-radius:8px; cursor:pointer; font-weight:600; }
-    .btn { background:#1a73e8; color:#fff; }
-    .btn-sec { background:#eee; }
-    .summary { margin-top:20px; }
-    .kv { border:1px solid #eee; background:#fafafa; padding:10px; border-radius:8px; margin:8px 0; }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SEFICO PACKING — Коммерческий опрос (RU)</title>
+<style>
+  :root{--gap:16px;--radius:12px;--shadow:0 6px 18px rgba(0,0,0,.08)}
+  body{font-family:system-ui,Arial,sans-serif;margin:0;background:#f6f7fb;color:#222}
+  .wrap{max-width:860px;margin:40px auto;padding:0 16px}
+  .card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:24px}
+  h1{font-size:22px;margin:0 0 10px}
+  .sub{color:#555;margin:0 0 16px}
+  .q-title{font-size:18px;margin:0 0 8px}
+  .opt{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border:1px solid #e6e7ee;border-radius:10px;margin-bottom:8px;cursor:pointer}
+  .opt:hover{background:#fafbff}
+  textarea,input[type="text"],input[type="email"],input[type="tel"]{width:100%;padding:10px;border-radius:10px;border:1px solid #e6e7ee}
+  .nav{display:flex;gap:10px;justify-content:space-between;margin-top:18px;flex-wrap:wrap}
+  button{border:0;padding:12px 16px;border-radius:10px;cursor:pointer;font-weight:700}
+  .btn{background:#1a73e8;color:#fff}
+  .btn-sec{background:#eef2ff;color:#1a2a3a}
+  .summary{margin-top:20px}
+  .kv{border:1px solid #eef0f6;border-radius:10px;padding:10px;background:#fafbff;margin:8px 0}
+</style>
 </head>
 <body>
 <div class="wrap">
-  <div class="card">
+  <div class="card" id="formCard">
     <h1>Коммерческий опрос — SEFICO PACKING</h1>
     <p class="sub">Ответы помогут подготовить индивидуальное предложение. Результаты можно отправить на <b>contact@craft.immo</b>.</p>
 
@@ -35,8 +33,11 @@
 
     <div class="nav">
       <button class="btn-sec" id="prevBtn">← Назад</button>
-      <button class="btn" id="nextBtn">Далее →</button>
-      <button class="btn" id="submitBtn" style="display:none">Завершить ✅</button>
+      <div>
+        <button class="btn-sec" id="skipBtn">Пропустить</button>
+        <button class="btn" id="nextBtn">Далее →</button>
+        <button class="btn" id="submitBtn" style="display:none">Завершить ✅</button>
+      </div>
     </div>
   </div>
 
@@ -46,38 +47,35 @@
 <script>
 const RECIPIENT = "contact@craft.immo";
 
+// ---------- ВОПРОСЫ ----------
 const SURVEY = [
   {id:"company", type:"text", title:"Компания / организация"},
   {id:"contact", type:"text", title:"Контактное лицо"},
-  {id:"email", type:"text", title:"Email"},
-  {id:"phone", type:"text", title:"Телефон (необязательно)"},
+  {id:"email",   type:"text", title:"Email"},
+  {id:"phone",   type:"text", title:"Телефон (необязательно)"},
 
-  {id:"thickness", type:"checkbox", title:"Какой тип продукции вы используете в своих упаковках?",
+  {id:"thickness", type:"checkbox", title:"Какой тип плёнки вы используете в своих упаковках? (можно несколько)",
     options:[{k:"A",t:"45 µm"},{k:"B",t:"60 µm"},{k:"C",t:"70 µm"},{k:"D",t:"90 µm"}]},
 
-  {id:"conditions", type:"checkbox", title:"На каких условиях вы работаете сегодня для покупки вашей продукции?",
-    options:[{k:"A",t:"Краткосрочные, разовые контракты"},
-             {k:"B",t:"Длительные контракты"},
-             {k:"C",t:"Открыты для разных предложений от новых партнёров"}]},
+  {id:"conditions", type:"checkbox", title:"На каких условиях вы работаете сегодня для покупки вашей продукции? (можно несколько)",
+    options:[{k:"A",t:"Краткосрочные, разовые контракты"},{k:"B",t:"Длительные контракты"},{k:"C",t:"Открыты к предложениям новых партнёров"}]},
 
   {id:"volume", type:"radio", title:"Какой объём вас интересует?",
     options:[{k:"A",t:"от 100 до 1000 м²"},{k:"B",t:"от 1000 до 5000 м²"},{k:"C",t:"5000 и более м²"}]},
 
-  {id:"payment", type:"radio", title:"Какие условия в возможной работе вас могут заинтересовать при длительном сотрудничестве?",
+  {id:"payment", type:"radio", title:"Какие условия при длительном сотрудничестве вас устроят?",
     options:[{k:"A",t:"Предоплата минимальная при заказе и 100% при получении товара"},
-             {k:"B",t:"100% предоплата до получения товара"},
-             {k:"C",t:"Ваш вариант"}]},
+             {k:"B",t:"Предоплата 100% до получения товара"},
+             {k:"C",t:"Ваш вариант (укажите в комментарии)"}]},
 
-  {id:"sefico_interest", type:"radio", title:"Может ли вас заинтересовать продукция компании SEFICO PACKING?",
-    options:[{k:"A",t:"Да, и я хотел бы получить образцы"},
-             {k:"B",t:"Нет, у нас уже есть поставщик и мы не заинтересованы"}]},
+  {id:"sefico_interest", type:"radio", title:"Интересна ли вам продукция SEFICO PACKING?",
+    options:[{k:"A",t:"Да, хочу получить образцы"},{k:"B",t:"Нет, поставщик уже есть"}]},
 
-  {id:"priority", type:"checkbox", title:"При выборе поставщика и партнёра, что вас больше интересует?",
-    options:[{k:"A",t:"Качество продукции"},{k:"B",t:"Срок исполнения заказа"},
-             {k:"C",t:"Гибкость в оплате"},{k:"D",t:"Стоимость"}]},
+  {id:"priority", type:"checkbox", title:"Что для вас важнее при выборе поставщика? (можно несколько)",
+    options:[{k:"A",t:"Качество продукции"},{k:"B",t:"Срок исполнения заказа"},{k:"C",t:"Гибкость в оплате"},{k:"D",t:"Стоимость"}]},
 
-  {id:"market_quality", type:"checkbox", title:"Как вы оцениваете качество доступных на рынке вакуумных пакетов?",
-    options:[{k:"A",t:"Низкое"},{k:"B",t:"Среднее"},{k:"C",t:"Высокое"}]},
+  {id:"market_quality", type:"checkbox", title:"Как вы оцениваете качество вакуумных пакетов на рынке? (можно до двух)",
+    options:[{k:"A",t:"Низкое"},{k:"B",t:"Среднее"},{k:"D",t:"Высокое"}]},
 
   {id:"market_availability", type:"radio", title:"Достаточно ли предложений на рынке?",
     options:[{k:"A",t:"Мало"},{k:"B",t:"Достаточно"}]},
@@ -85,73 +83,135 @@ const SURVEY = [
   {id:"market_price", type:"radio", title:"Как вы оцениваете стоимость таких пакетов?",
     options:[{k:"A",t:"Доступная"},{k:"B",t:"Средняя"},{k:"C",t:"Высокая"}]},
 
-  {id:"comments", type:"text", title:"Комментарий (необязательно)"},
   {id:"needs", type:"text", title:"Ваши нужды плёнки в месяц (свободное поле)"},
-  {id:"materials", type:"text", title:"Материалы (PE / PA-PE / PP / компостируемые / бумага+плёнка / другое)"}
+  {id:"materials", type:"text", title:"Материалы (PE / PA-PE / PP / компостируемые / бумага+плёнка / другое)"},
+  {id:"comments", type:"text", title:"Комментарий (необязательно). Уточнения по качеству, брендам, логистике и пр."}
 ];
 
+// ---------- ЛОГИКА ----------
 let step = 0;
 const answers = {};
-const qBox = document.getElementById("question");
-const prevBtn = document.getElementById("prevBtn");
-const nextBtn = document.getElementById("nextBtn");
-const submitBtn = document.getElementById("submitBtn");
-const result = document.getElementById("result");
+
+const qBox      = document.getElementById('question');
+const prevBtn   = document.getElementById('prevBtn');
+const nextBtn   = document.getElementById('nextBtn');
+const skipBtn   = document.getElementById('skipBtn');
+const submitBtn = document.getElementById('submitBtn');
+const result    = document.getElementById('result');
+const formCard  = document.getElementById('formCard');
 
 function render() {
+  // защита границ и скрытие результатов
+  if (step < 0) step = 0;
+  if (step >= SURVEY.length) step = SURVEY.length - 1;
+  result.style.display = 'none';
+
   const q = SURVEY[step];
-  qBox.innerHTML = "";
-  const h = document.createElement("h2");
-  h.className = "q-title";
+  qBox.innerHTML = '';
+
+  const h = document.createElement('h2');
+  h.className = 'q-title';
   h.textContent = q.title;
   qBox.appendChild(h);
 
-  if(q.type==="radio" || q.type==="checkbox") {
-    q.options.forEach(opt=>{
-      const label=document.createElement("label");
-      label.className="opt";
-      const input=document.createElement("input");
-      input.type=q.type; input.name=q.id+(q.type==="radio"?"":"[]"); input.value=opt.k;
-      if(answers[q.id] && answers[q.id].includes && answers[q.id].includes(opt.k)) input.checked=true;
-      else if(answers[q.id]===opt.k) input.checked=true;
-      input.addEventListener("change",()=>{
-        if(q.type==="radio"){ answers[q.id]=opt.k; }
-        else {
-          if(!answers[q.id]) answers[q.id]=[];
-          if(input.checked) answers[q.id].push(opt.k);
-          else answers[q.id]=answers[q.id].filter(v=>v!==opt.k);
+  if (q.type === 'radio' || q.type === 'checkbox') {
+    q.options.forEach(opt => {
+      const label = document.createElement('label');
+      label.className = 'opt';
+      const input = document.createElement('input');
+      input.type = q.type;
+      input.name = q.id + (q.type === 'radio' ? '' : '[]');
+      input.value = opt.k;
+
+      // восстановление выбора
+      if (q.type === 'radio' && answers[q.id] === opt.k) input.checked = true;
+      if (q.type === 'checkbox' && Array.isArray(answers[q.id]) && answers[q.id].includes(opt.k)) input.checked = true;
+
+      input.addEventListener('change', () => {
+        if (q.type === 'radio') {
+          answers[q.id] = opt.k;
+        } else {
+          if (!Array.isArray(answers[q.id])) answers[q.id] = [];
+          if (input.checked) {
+            if (!answers[q.id].includes(opt.k)) answers[q.id].push(opt.k);
+          } else {
+            answers[q.id] = answers[q.id].filter(v => v !== opt.k);
+          }
         }
       });
+
       label.appendChild(input);
-      label.appendChild(document.createTextNode(opt.k+". "+opt.t));
+      label.appendChild(document.createTextNode(` ${opt.k}. ${opt.t}`));
       qBox.appendChild(label);
     });
   } else {
-    const input=document.createElement("textarea");
-    input.value=answers[q.id]||"";
-    input.addEventListener("input",()=>answers[q.id]=input.value);
-    qBox.appendChild(input);
+    const ta = document.createElement('textarea');
+    ta.rows = 3;
+    ta.value = answers[q.id] || '';
+    ta.placeholder = 'Ваш ответ...';
+    ta.addEventListener('input', () => { answers[q.id] = ta.value; });
+    qBox.appendChild(ta);
   }
 
-  prevBtn.style.display = step===0?"none":"inline-block";
-  nextBtn.style.display = step<SURVEY.length-1?"inline-block":"none";
-  submitBtn.style.display = step===SURVEY.length-1?"inline-block":"none";
+  // кнопки
+  prevBtn.style.display   = step === 0 ? 'none' : 'inline-block';
+  nextBtn.style.display   = step < SURVEY.length - 1 ? 'inline-block' : 'none';
+  submitBtn.style.display = step === SURVEY.length - 1 ? 'inline-block' : 'none';
+  // пропуск только где нет обязательности (здесь всё опционально)
+  skipBtn.style.display   = step < SURVEY.length - 1 ? 'inline-block' : 'none';
 }
 
-prevBtn.onclick=()=>{ if(step>0) step--; render(); };
-nextBtn.onclick=()=>{ step++; render(); };
-submitBtn.onclick=()=>showResult();
+prevBtn.onclick   = () => { step--; render(); };
+nextBtn.onclick   = () => { step++; render(); };
+skipBtn.onclick   = () => { step++; render(); };
+submitBtn.onclick = () => showResult();
 
-function showResult(){
-  qBox.innerHTML="";
-  result.style.display="block";
-  let html="<div class='summary'><h2>Спасибо! Результаты опроса</h2>";
-  for(const q of SURVEY){
-    let a=answers[q.id]||"(нет ответа)";
-    if(Array.isArray(a)) a=a.join(", ");
-    html+=`<div class="kv"><b>${q.title}</b><div>${a}</div></div>`;
+function showResult() {
+  formCard.style.display = 'none';
+  result.style.display = 'block';
+
+  const toLabel = (q, value) => {
+    if (!q.options) return value || '(нет ответа)';
+    const map = Object.fromEntries(q.options.map(o => [o.k, o.t]));
+    if (Array.isArray(value)) return value.map(v => `${v}. ${map[v]||v}`).join('; ');
+    return `${value||''}${value ? '. ' : ''}${value ? (map[value]||'') : ''}`.trim() || '(нет ответа)';
+  };
+
+  let html = `<div class="summary"><h2>Спасибо! Результаты</h2>`;
+  for (const q of SURVEY) {
+    const a = answers[q.id];
+    html += `<div class="kv"><b>${q.title}</b><div>${toLabel(q, a)}</div></div>`;
   }
-  html+=`
+  html += `
     <div class="nav" style="margin-top:12px">
       <button class="btn-sec" id="backBtn">← Изменить ответы</button>
-      <button class="btn" id="sendBtn">Отправить на contact@
+      <button class="btn" id="sendBtn">Отправить на contact@craft.immo ✉️</button>
+    </div>
+  </div>`;
+  result.innerHTML = html;
+
+  document.getElementById('backBtn').onclick = () => {
+    result.style.display = 'none';
+    formCard.style.display = '';
+    render();
+  };
+  document.getElementById('sendBtn').onclick = sendMail;
+}
+
+function sendMail(){
+  const lines = [];
+  for (const q of SURVEY) {
+    let val = answers[q.id];
+    if (Array.isArray(val)) val = val.join(', ');
+    lines.push(`${q.title}: ${val || ''}`);
+  }
+  const subject = encodeURIComponent('SEFICO PACKING — ответы (RU)');
+  const body = encodeURIComponent(lines.join('\n'));
+  location.href = `mailto:${encodeURIComponent(RECIPIENT)}?subject=${subject}&body=${body}`;
+}
+
+// старт
+render();
+</script>
+</body>
+</html>
